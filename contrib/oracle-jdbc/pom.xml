@@ -4,7 +4,7 @@
     <parent>
       <groupId>org.sakaiproject.nakamura</groupId>
       <artifactId>base</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1-SNAPSHOT</version>
     </parent>
     <groupId>org.sakaiproject.nakamura</groupId>
     <artifactId>org.sakaiproject.nakamura.ojdbc</artifactId>
@@ -56,7 +56,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.1-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
