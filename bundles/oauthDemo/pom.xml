@@ -160,10 +160,10 @@
       <groupId>org.apache.sling</groupId>
       <artifactId>org.apache.sling.jcr.resource</artifactId>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.sakaiproject.nakamura</groupId>
       <artifactId>org.sakaiproject.nakamura.core</artifactId>
-    </dependency>
+    </dependency>--> 
     <dependency>
       <groupId>org.sakaiproject.nakamura</groupId>
       <artifactId>org.apache.sling.jcr.jackrabbit.server</artifactId>

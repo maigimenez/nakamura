@@ -48,12 +48,13 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.apache.sling.commons.osgi.PropertiesUtil;
-import org.sakaiproject.nakamura.api.lite.Session;
+/*import org.sakaiproject.nakamura.api.lite.Session;
 import org.sakaiproject.nakamura.api.lite.StorageClientException;
 import org.sakaiproject.nakamura.api.lite.StorageClientUtils;
 import org.sakaiproject.nakamura.api.lite.accesscontrol.AccessDeniedException;
 import org.sakaiproject.nakamura.api.lite.content.Content;
 import org.sakaiproject.nakamura.api.lite.content.ContentManager;
+*/
 import org.sakaiproject.nakamura.util.LitePersonalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -296,7 +297,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
 
   }
   
-  private void storeTokens(SlingHttpServletRequest request, String authorizationToken)
+  /*private void storeTokens(SlingHttpServletRequest request, String authorizationToken)
       throws StorageClientException, AccessDeniedException {
     Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
         .adaptTo(javax.jcr.Session.class));
@@ -307,5 +308,5 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
         authorizationToken);
     Content content = new Content(path, props);
     cm.update(content);
-  }
+  }*/
 }
