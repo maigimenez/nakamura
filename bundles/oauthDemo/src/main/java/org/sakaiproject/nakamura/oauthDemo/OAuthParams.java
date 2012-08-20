@@ -45,7 +45,65 @@ public class OAuthParams {
 
     private String errorMessage;
 
-    public String getClientId() {
+    public OAuthParams(String clientId, String clientSecret,
+			String redirectUri, String authzEndpoint, String tokenEndpoint,
+			String authzCode, String accessToken, long expiresIn,
+			String refreshToken, String scope, String resourceUrl,
+			String resource, String application, String errorMessage) {
+		super();
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+		this.redirectUri = redirectUri;
+		this.authzEndpoint = authzEndpoint;
+		this.tokenEndpoint = tokenEndpoint;
+		this.authzCode = authzCode;
+		this.accessToken = accessToken;
+		this.expiresIn = expiresIn;
+		this.refreshToken = refreshToken;
+		this.scope = scope;
+		this.resourceUrl = resourceUrl;
+		this.resource = resource;
+		this.application = application;
+		this.errorMessage = errorMessage;
+	}
+    
+    public OAuthParams() {
+		super();
+		this.clientId = null;
+		this.clientSecret = null;
+		this.redirectUri = null;
+		this.authzEndpoint = null;
+		this.tokenEndpoint = null;
+		this.authzCode = null;
+		this.accessToken = null;
+		this.expiresIn = -1;
+		this.refreshToken = null;
+		this.scope = null;
+		this.resourceUrl = null;
+		this.resource = null;
+		this.application = null;
+		this.errorMessage = null;
+	}
+    
+    public OAuthParams(String clientId, String clientSecret,
+			String redirectUri) {
+		super();
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+		this.redirectUri = redirectUri;
+		this.authzEndpoint = null;
+		this.tokenEndpoint = null;
+		this.authzCode = null;
+		this.accessToken = null;
+		this.expiresIn = -1;
+		this.refreshToken = null;
+		this.scope = null;
+		this.resourceUrl = null;
+		this.resource = null;
+		this.application = null;
+		this.errorMessage = null;
+	}
+	public String getClientId() {
         return clientId;
     }
 

@@ -106,7 +106,7 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
    */
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
       throws ServletException, IOException {
-	  dispatchOffline(request, response);
+	  dispatch(request, response);
   }
 
   /**

@@ -48,18 +48,17 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.apache.sling.commons.osgi.PropertiesUtil;
-/*import org.sakaiproject.nakamura.api.lite.Session;
+import org.sakaiproject.nakamura.api.lite.Session;
 import org.sakaiproject.nakamura.api.lite.StorageClientException;
 import org.sakaiproject.nakamura.api.lite.StorageClientUtils;
 import org.sakaiproject.nakamura.api.lite.accesscontrol.AccessDeniedException;
 import org.sakaiproject.nakamura.api.lite.content.Content;
 import org.sakaiproject.nakamura.api.lite.content.ContentManager;
-*/
 import org.sakaiproject.nakamura.util.LitePersonalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 
 
 
@@ -99,6 +98,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
   private String clientId;
   private String clientSecret;
   private String redirectUri;
+  private OAuthParams oAuthParams;
   
   @Activate
   protected void activate(Map<?, ?> props) {
@@ -106,6 +106,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
     clientId = PropertiesUtil.toString(props.get(CLIENT_ID), DEFAULT_CLIENT_ID);
     clientSecret = PropertiesUtil.toString(props.get(CLIENT_SECRET), DEFAULT_CLIENT_SECRET);
     redirectUri = PropertiesUtil.toString(props.get(REDIRECT_URI), DEFAULT_REDIRECT_URI);
+    oAuthParams = new OAuthParams(clientId, clientSecret, redirectUri);
   }
   
   @SuppressWarnings("unused")
@@ -130,14 +131,28 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
  
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
       throws ServletException, IOException {
-    String code = getCode(request);
-    dispatch(code,response);
+    try {
+		dispatch(request,response);
+	} catch (StorageClientException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (AccessDeniedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
   
   protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response)
       throws ServletException, IOException {
-    String code = getCode(request);
-    dispatch(code,response);     
+    try {
+		dispatch(request,response);
+	} catch (StorageClientException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (AccessDeniedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}     
   }
   
   private String getCode(SlingHttpServletRequest request){
@@ -149,14 +164,16 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
       LOGGER.error(e.getMessage(), e);
     }
     String code = oar.getCode();
+    oAuthParams.setAuthzCode(code);
     return code;
   }
   
-  private void dispatch(String code, SlingHttpServletResponse response)
-      throws ServletException, IOException {
-	  
+  private void dispatch(SlingHttpServletRequest request, SlingHttpServletResponse response)
+      throws ServletException, IOException, StorageClientException, AccessDeniedException {
+	String code = getCode(request);
+	response.getWriter().append("\n GET ACCESS TOKEN \n");
 
-    response.getWriter().append( "\n Request token: " + code );
+    response.getWriter().append( "- Auth code: " +  code + " " + oAuthParams.getAuthzCode()  +"\n");
 
     try {
       OAuthClientRequest oauthRequest = OAuthClientRequest
@@ -171,13 +188,24 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
       OAuthClient client = new OAuthClient(new URLConnectionClient());
       Class<? extends OAuthAccessTokenResponse> cl = OAuthJSONAccessTokenResponse.class;
       OAuthAccessTokenResponse oauthResponse = client.accessToken(oauthRequest, cl);
-
-      response.getWriter().append("\n Access Token: " + oauthResponse.getAccessToken());
-      response.getWriter().append("\n Refresh Token: " + oauthResponse.getRefreshToken());
-      response.getWriter().append("\n Expires in: " + oauthResponse.getExpiresIn());
       
-      response.getWriter().append("\n Get resource: " + getResource(oauthResponse.getAccessToken()));
-      refreshToken(oauthResponse.getRefreshToken(),response);
+      oAuthParams.setAccessToken(oauthResponse.getAccessToken());
+      oAuthParams.setRefreshToken(oauthResponse.getRefreshToken());
+      oAuthParams.setExpiresIn(oauthResponse.getExpiresIn());
+
+      response.getWriter().append("- Access Token: " + oauthResponse.getAccessToken() + "\n");
+      response.getWriter().append("- Refresh Token: " + oauthResponse.getRefreshToken() + "\n");
+      response.getWriter().append("- Expires in: " + oauthResponse.getExpiresIn() + "\n");
+
+      response.getWriter().append("\n\n GET RESOURCE \n");
+      response.getWriter().append("- Resource: " + getResource(oAuthParams.getAccessToken())+"\n");
+      
+      //TODO: Require if the token is expired 
+      if(oAuthParams.getRefreshToken()!=null){
+    	  refreshToken(oauthResponse.getRefreshToken(),response);
+      }
+      
+      storeTokens(request, oAuthParams.getAccessToken(), response);
       
     } catch (OAuthSystemException e) {
       LOGGER.error(e.getMessage(), e);
@@ -268,7 +296,10 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
   }
   
   private void refreshToken(String refreshToken, SlingHttpServletResponse response){
+
 	  try {
+		  response.getWriter().append("\n\n REFRESH TOKEN \n");
+
 	      OAuthClientRequest oauthRequest = OAuthClientRequest
 	          .tokenLocation(tokenLocation)
 	          .setClientId(clientId)
@@ -281,10 +312,11 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
 	      Class<? extends OAuthAccessTokenResponse> cl = OAuthJSONAccessTokenResponse.class;
 	      OAuthAccessTokenResponse oauthResponse = client.accessToken(oauthRequest, cl);
 	      
-	      response.getWriter().append("\n Access Token: " + oauthResponse.getAccessToken());
-	      response.getWriter().append("\n Expires in: " + oauthResponse.getExpiresIn());
+	      response.getWriter().append("- Access Token: " + oauthResponse.getAccessToken()+"\n");
+	      response.getWriter().append("- Expires in: " + oauthResponse.getExpiresIn()+"\n");
 	      
-	      response.getWriter().append("\n Get resource: " + getResource(oauthResponse.getAccessToken()));
+	      response.getWriter().append("\n\n GET RESOURCE");
+	      response.getWriter().append("- Get resource: " + getResource(oAuthParams.getAccessToken())+"\n");
 	      
 	    } catch (OAuthSystemException e) {
 	        LOGGER.error(e.getMessage(), e);
@@ -297,11 +329,16 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
 
   }
   
-  /*private void storeTokens(SlingHttpServletRequest request, String authorizationToken)
-      throws StorageClientException, AccessDeniedException {
+  private void storeTokens(SlingHttpServletRequest request, String authorizationToken, SlingHttpServletResponse response)
+      throws StorageClientException, AccessDeniedException, IOException {
+	  
+	response.getWriter().append("\n\n STORE TOKENS ");
     Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
         .adaptTo(javax.jcr.Session.class));
     ContentManager cm = session.getContentManager();
+	response.getWriter().append("\n Get Remote user: " + request.getRemoteUser());
+	
+
     String path = LitePersonalUtils.getPrivatePath(request
         .getRemoteUser()) + "/oauth";
     Map<String, Object> props = ImmutableMap.<String, Object> of("authorization_token",
@@ -310,6 +347,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
     cm.update(content);
   }
   
+  /*
   private void storeTokensOffline(SlingHttpServletRequest request, String authorizationToken, String refreshToken)
       throws StorageClientException, AccessDeniedException {
     Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
