@@ -86,12 +86,14 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 	@Property(value = OAuthDemoServlet.DEFAULT_REDIRECT_URI)
 	static final String REDIRECT_URI = "redirectUri";
 
+	public static final String DEFAULT_PROTECTED_RESOURCE_URI = "http://localhost:8080/system/sling/oauthDemoPrivate";
+	@Property(value = OAuthDemoServlet.DEFAULT_PROTECTED_RESOURCE_URI)
+	static final String PROTECTED_RESOURCE_URI = "resourceUri";
+	
 	public static final String DEFAULT_RESPONSE_TYPE = "code";
 	@Property(value = OAuthDemoServlet.DEFAULT_RESPONSE_TYPE)
 	static final String RESPONSE_TYPE = "responseType";
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(OAuthDemoServlet.class);
 	private static final long serialVersionUID = -2002186252317448037L;
 
 	private String authorizationLocation;
@@ -101,21 +103,18 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 	private String responseType;
 	private String clientId;
 	private String approvalPrompt;
+	private String resourceUri;
 
 	@Activate
 	protected void activate(Map<?, ?> props) {
-		authorizationLocation = PropertiesUtil.toString(
-				props.get(AUTHZ_LOCATION), DEFAULT_AUTHZ_LOCATION);
+		authorizationLocation = PropertiesUtil.toString(props.get(AUTHZ_LOCATION), DEFAULT_AUTHZ_LOCATION);
 		scope = PropertiesUtil.toString(props.get(SCOPE), DEFAULT_SCOPE);
 		state = PropertiesUtil.toString(props.get(STATE), DEFAULT_STATE);
-		redirectUri = PropertiesUtil.toString(props.get(REDIRECT_URI),
-				DEFAULT_REDIRECT_URI);
-		responseType = PropertiesUtil.toString(props.get(RESPONSE_TYPE),
-				DEFAULT_RESPONSE_TYPE);
-		clientId = PropertiesUtil.toString(props.get(CLIENT_ID),
-				DEFAULT_CLIENT_ID);
-		approvalPrompt = PropertiesUtil.toString(props.get(APPROVAL_PROMPT),
-				DEFAULT_APPROVAL_PROMPT);
+		redirectUri = PropertiesUtil.toString(props.get(REDIRECT_URI),DEFAULT_REDIRECT_URI);
+		responseType = PropertiesUtil.toString(props.get(RESPONSE_TYPE),DEFAULT_RESPONSE_TYPE);
+		clientId = PropertiesUtil.toString(props.get(CLIENT_ID),DEFAULT_CLIENT_ID);
+		approvalPrompt = PropertiesUtil.toString(props.get(APPROVAL_PROMPT),DEFAULT_APPROVAL_PROMPT);
+		resourceUri = PropertiesUtil.toString(props.get(PROTECTED_RESOURCE_URI),DEFAULT_PROTECTED_RESOURCE_URI);
 	}
 
 	/**
@@ -200,34 +199,10 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 				throw new ServletException(e.getMessage(), e);
 			}
 		} else {
-			response.getWriter().append("\n Get resource: " + getResource(access_token) + "");
+			response.sendRedirect(resourceUri);
 		}
 	}
 
-	private String getResource(String accessToken) {
-		URL url;
-		try {
-			url = new URL(
-					"https://www.googleapis.com/oauth2/v1/userinfo?access_token="
-							+ accessToken);
-			URLConnection con = url.openConnection();
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
-
-			String line, resource = "";
-			while ((line = in.readLine()) != null) {
-				resource += line;
-			}
-			return resource;
-
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage(), e);
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
-		}
-		return null;
-
-	}
 
 	/**
 	 * Dispatches a redirect request to the OAuth server, with offline access

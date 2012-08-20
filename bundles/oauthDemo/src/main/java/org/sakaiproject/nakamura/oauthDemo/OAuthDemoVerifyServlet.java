@@ -350,7 +350,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
     }
   }
   
-  /*
+  
   private void storeTokensOffline(SlingHttpServletRequest request, String authorizationToken, String refreshToken)
       throws StorageClientException, AccessDeniedException {
     Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
@@ -366,9 +366,8 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
     Content authorizationTokenCont = new Content(path, authorizationTokenProp);
     Content refreshTokenCont = new Content(path, refreshTokenProp);
     cm.update(authorizationTokenCont);
-    cm.update(refreshTokenProp);
+    cm.update(refreshTokenCont);
 
   }
-  *
-  */
+
 }
