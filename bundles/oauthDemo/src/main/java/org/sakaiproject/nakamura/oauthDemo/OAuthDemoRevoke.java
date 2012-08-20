@@ -17,6 +17,12 @@
  */
 package org.sakaiproject.nakamura.oauthDemo;
 
+import org.sakaiproject.nakamura.api.lite.Session;
+import org.sakaiproject.nakamura.api.lite.StorageClientException;
+import org.sakaiproject.nakamura.api.lite.StorageClientUtils;
+import org.sakaiproject.nakamura.api.lite.accesscontrol.AccessDeniedException;
+import org.sakaiproject.nakamura.api.lite.content.Content;
+import org.sakaiproject.nakamura.api.lite.content.ContentManager;
 import org.sakaiproject.nakamura.util.LitePersonalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,26 +97,24 @@ public class OAuthDemoRevoke extends SlingAllMethodsServlet {
 		dispatch(request, response);
 	}
 
-	/*private String getTokens(SlingHttpServletRequest request)
-			throws StorageClientException, AccessDeniedException {
+	private String getTokens(SlingHttpServletRequest request,
+			SlingHttpServletResponse response) throws StorageClientException,
+			AccessDeniedException {
+
 		Session session = StorageClientUtils.adaptToSession(request
 				.getResourceResolver().adaptTo(javax.jcr.Session.class));
-		try {
-			ContentManager cm = session.getContentManager();
-			String authorization_token = (String) contentManager.get(
-					LitePersonalUtils.getPrivatePath(request.getRemoteUser())
-							+ "/oauth").getProperty("authorization_token");
+		ContentManager cm = session.getContentManager();
+		Content privateOAuthPath = cm.get(LitePersonalUtils
+				.getPrivatePath(request.getRemoteUser()) + "/oauth");
+
+		if (privateOAuthPath != null) {
+			String authorization_token = (String) privateOAuthPath
+					.getProperty("authorization_token");
 			return authorization_token;
-		} catch (StorageClientException e) {
-			LOGGER.error("Couldn't retreive proxy granting ticket: ", e);
-			return null;
-		} catch (AccessDeniedException e) {
-			LOGGER.error(
-					"Permission denied trying to retreive proxy granting ticket: ",
-					e);
+		} else {
 			return null;
 		}
-	}*/
+	}
 
 	/**
 	 * Dispatches a request to revoke the OAuth permissions.
@@ -124,14 +128,22 @@ public class OAuthDemoRevoke extends SlingAllMethodsServlet {
 			throws ServletException, IOException {
 		response.getWriter().append("\n REVOKE LOCATION");
 
-		String auth_token = "";
-		// TODO get the authorization_token from user private storage
-		//if (getTokens(request) != null) {
+		String auth_token = null;
+		try {
+			auth_token = getTokens(request, response);
+		} catch (StorageClientException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (AccessDeniedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		if (auth_token != null) {
 			try {
 				OAuthClientRequest oauthRequest = OAuthClientRequest
 						.tokenLocation(revokeLocation)
-						.setParameter("token", "TODO: getTokens(request) ")
-						.buildBodyMessage();
+						.setParameter("token", auth_token).buildBodyMessage();
 
 				OAuthClient client = new OAuthClient(new URLConnectionClient());
 				Class<? extends OAuthAccessTokenResponse> cl = OAuthJSONAccessTokenResponse.class;
@@ -143,6 +155,7 @@ public class OAuthDemoRevoke extends SlingAllMethodsServlet {
 			} catch (OAuthProblemException e) {
 				LOGGER.error(e.getMessage(), e);
 			}
+		}
 	}
 
 }
