@@ -338,13 +338,16 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
     ContentManager cm = session.getContentManager();
 	response.getWriter().append("\n Get Remote user: " + request.getRemoteUser());
 	
-
-    String path = LitePersonalUtils.getPrivatePath(request
-        .getRemoteUser()) + "/oauth";
-    Map<String, Object> props = ImmutableMap.<String, Object> of("authorization_token",
-        authorizationToken);
-    Content content = new Content(path, props);
-    cm.update(content);
+	if(request.getRemoteUser().equals("anonymous")){
+		response.getWriter().append("\n Sorry we cann't store data since you are not logged");
+	}
+	else{
+		String path = LitePersonalUtils.getPrivatePath(request
+				.getRemoteUser()) + "/oauth";
+		Map<String, Object> props = ImmutableMap.<String, Object> of("authorization_token", authorizationToken);
+		Content content = new Content(path, props);
+    	cm.update(content);
+    }
   }
   
   /*
