@@ -308,5 +308,26 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
         authorizationToken);
     Content content = new Content(path, props);
     cm.update(content);
-  }*/
+  }
+  
+  private void storeTokensOffline(SlingHttpServletRequest request, String authorizationToken, String refreshToken)
+      throws StorageClientException, AccessDeniedException {
+    Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
+        .adaptTo(javax.jcr.Session.class));
+    ContentManager cm = session.getContentManager();
+    String path = LitePersonalUtils.getPrivatePath(request
+        .getRemoteUser()) + "/oauth";
+    Map<String, Object> authorizationTokenProp = ImmutableMap.<String, Object> of("authorization_token",
+        authorizationToken);
+    Map<String, Object> refreshTokenProp = ImmutableMap.<String, Object> of("authorization_token",
+        refreshToken);
+
+    Content authorizationTokenCont = new Content(path, authorizationTokenProp);
+    Content refreshTokenCont = new Content(path, refreshTokenProp);
+    cm.update(authorizationTokenCont);
+    cm.update(refreshTokenProp);
+
+  }
+  *
+  */
 }

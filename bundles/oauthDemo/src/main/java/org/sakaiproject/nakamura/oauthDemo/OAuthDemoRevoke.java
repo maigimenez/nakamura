@@ -142,11 +142,7 @@ public class OAuthDemoRevoke extends SlingAllMethodsServlet {
 				LOGGER.error(e.getMessage(), e);
 			} catch (OAuthProblemException e) {
 				LOGGER.error(e.getMessage(), e);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		//}
 	}
 
 }
