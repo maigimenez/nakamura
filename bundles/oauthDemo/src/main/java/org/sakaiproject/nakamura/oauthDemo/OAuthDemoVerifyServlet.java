@@ -213,66 +213,8 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
       LOGGER.error(e.getMessage(), e);
     }
   }
-  
-  @SuppressWarnings("unused")
-  private void dispatch2(String code , SlingHttpServletResponse response){
-    String urlParameters = "code="+ code+
-    		"&client_id="+ clientId + 
-    		"&client_secret="+ clientSecret + 
-    		"&redirect_uri="+ redirectUri + 
-        "&grant_type=" + "authorization_code";
-    
-    String request = tokenLocation;
-    URL url;
-    try {
-      url = new URL(request);
-      URLConnection connection = url.openConnection();       
-      connection.setDoOutput(true);
-      connection.setDoInput(true);
-      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
-      connection.setRequestProperty("charset", "utf-8");
-      connection.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
-      connection.setUseCaches (false);
 
-      DataOutputStream wr = new DataOutputStream(connection.getOutputStream ());
-      wr.writeBytes(urlParameters);
-      wr.flush();
-      
-      // Get the response
-      response.getWriter().write("Oauth response: ");
-      BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      String line, message="";
-      while ((line = rd.readLine()) != null) {
-        message += line;
-        response.getWriter().append(line);
-      }
-      response.getWriter().append("\n");
-      String access_token = getAccessToken(message);
-      response.getWriter().append("Access token: " + access_token + "\n");
-      response.getWriter().append("Get resource: " + getResource(access_token)+"");
-      rd.close();
-      wr.close();
-      
-    } catch (MalformedURLException e) {
-      LOGGER.error(e.getMessage(), e);
-    } catch (IOException e) {
-      LOGGER.error(e.getMessage(), e);
-    } 
-
-  }
-  
-  private String getAccessToken(String message) {
-    Pattern pattern = Pattern.compile("access_token\" : \"[^\"]+");
-    String cleanPattern = "access_token\" : \"";
-    Matcher matcher = pattern.matcher(message);
-    if (matcher.find()){
-      String access_token = matcher.group(); 
-      return access_token.replaceAll(cleanPattern, "");
-      
-    }
-    return null; 
-  }
-
+  //TODO: duplicated OAuthDemoPrivateServlet
   private String getResource(String accessToken){
     URL url;
     try {
