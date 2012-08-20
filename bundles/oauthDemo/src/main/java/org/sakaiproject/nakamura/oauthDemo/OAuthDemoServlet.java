@@ -17,6 +17,7 @@
  */
 package org.sakaiproject.nakamura.oauthDemo;
 
+import org.sakaiproject.nakamura.util.LitePersonalUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +119,32 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
     dispatch(request, response);
   }
 
+  /*private boolean getTokens(SlingHttpServletRequest request, String authorizationToken)
+	      throws StorageClientException, AccessDeniedException {
+	    Session session = StorageClientUtils.adaptToSession(request.getResourceResolver()
+	        .adaptTo(javax.jcr.Session.class));
+	    try{
+		    ContentManager cm = session.getContentManager();
+		    String authorization_token = (String) contentManager.get(
+	                  LitePersonalUtils.getPrivatePath(request.getRemoteUser()) + "/oauth")
+	                  .getProperty("authorization_token");
+		    String authorization_token = (String) contentManager.get(
+	                  LitePersonalUtils.getPrivatePath(request.getRemoteUser()) + "/oauth")
+	                  .getProperty("authorization_token");
+		    
+	    }
+	    ContentManager cm = session.getContentManager();
+	    String path = LitePersonalUtils.getPrivatePath(request
+	        .getRemoteUser()) + "/oauth";
+	    Map<String, Object> props = ImmutableMap.<String, Object> of("authorization_token",
+	        authorizationToken);
+	    
+	    ContentManager contentManager = session.getContentManager();
+	    Content content = new Content(path, props);
+	    cm.update(content);
+	  }
+	  */
+  
   /**
    * Dispatches a redirect request to the OAuth server.
    *
