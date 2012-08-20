@@ -131,28 +131,13 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
  
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
       throws ServletException, IOException {
-    try {
 		dispatch(request,response);
-	} catch (StorageClientException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (AccessDeniedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
   }
   
   protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response)
       throws ServletException, IOException {
-    try {
 		dispatch(request,response);
-	} catch (StorageClientException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (AccessDeniedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}     
+ 
   }
   
   private String getCode(SlingHttpServletRequest request){
@@ -169,7 +154,7 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
   }
   
   private void dispatch(SlingHttpServletRequest request, SlingHttpServletResponse response)
-      throws ServletException, IOException, StorageClientException, AccessDeniedException {
+      throws ServletException, IOException {
 	String code = getCode(request);
 	response.getWriter().append("\n GET ACCESS TOKEN \n");
 
@@ -211,7 +196,13 @@ public class OAuthDemoVerifyServlet extends SlingAllMethodsServlet {
       LOGGER.error(e.getMessage(), e);
     } catch (OAuthProblemException e) {
       LOGGER.error(e.getMessage(), e);
-    }
+    } catch (StorageClientException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (AccessDeniedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 
   //TODO: duplicated OAuthDemoPrivateServlet

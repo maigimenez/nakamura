@@ -124,8 +124,7 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
 	protected void doGet(SlingHttpServletRequest request,
-			SlingHttpServletResponse response) throws ServletException,
-			IOException {
+			SlingHttpServletResponse response) throws ServletException, IOException {
 		dispatch(request, response);
 	}
 
@@ -141,7 +140,15 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 	}
 	
 	
-	private String getTokens(SlingHttpServletRequest request,SlingHttpServletResponse response)
+	/**
+	 * Try to get authorization_token from a user than already has given its permission.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws StorageClientException
+	 * @throws AccessDeniedException
+	 */
+	private String getTokens(SlingHttpServletRequest request)
 			throws StorageClientException, AccessDeniedException {
 		
 		Session session = StorageClientUtils.adaptToSession(request
@@ -168,14 +175,13 @@ public class OAuthDemoServlet extends SlingAllMethodsServlet {
 	 * @throws IOException
 	 */
 	private void dispatch(SlingHttpServletRequest request,
-			SlingHttpServletResponse response) throws ServletException,
-			IOException {
+			SlingHttpServletResponse response) throws ServletException, IOException {
 
 		String access_token = null;
 
 		try {
-			access_token = getTokens(request, response);
-			response.getWriter().write("\n\n GET TOKENS \n" + getTokens(request, response));
+			access_token = getTokens(request);
+			response.getWriter().write("\n\n GET TOKENS \n" + getTokens(request));
 		} catch (StorageClientException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
